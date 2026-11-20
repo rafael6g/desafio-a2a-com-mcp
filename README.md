@@ -103,7 +103,7 @@ curl -s http://localhost:7300/a2a -H 'Content-Type: application/json' \
 
 **Volta (A2A para MCP).** O `SendMessage` com `taskId` e `escolha=<valor>` cai em [`Ponte._continuar`](agente/agente.py#L229-L263). Uma escolha fora do enum mantém a Task pausada e repete a linha. `escolha=recusar` vira `{"action": "decline"}`, e um id válido vira `{"action": "accept", "content": {"sala": <id>}}`. O agente então repete o **mesmo** `tools/call`, com um id de JSON-RPC novo (o contador do `ClienteMCP` nunca repete), `inputResponses` com a mesma chave e o `requestState` ecoado byte a byte ([agente/agente.py:255](agente/agente.py#L255)).
 
-**No servidor.** Do lado do servidor, a pergunta nasce em [`_perguntar`](servidor-mcp/servidor.py#L164-L203), que devolve o `InputRequiredResult`. O retry é atendido em [`_retomar`](servidor-mcp/servidor.py#L206-L239), que reconstrói o pedido original a partir do `requestState` já verificado pelo SDK e conclui a reserva, ou devolve `reservado: false` na recusa.
+**No servidor.** Do lado do servidor, a pergunta nasce em [`_perguntar`](servidor-mcp/servidor.py#L174-L213), que devolve o `InputRequiredResult`. O retry é atendido em [`_retomar`](servidor-mcp/servidor.py#L216-L249), que reconstrói o pedido original a partir do `requestState` já verificado pelo SDK e conclui a reserva, ou devolve `reservado: false` na recusa.
 
 O estado pausado é por Task: cada `Registro` tem a sua `Pausa` e um lock próprio. Duas Tasks pausadas ao mesmo tempo nunca trocam de `requestState`.
 
@@ -119,7 +119,9 @@ No retry, o boundary verifica o token antes de a tool rodar. Token adulterado, e
 
 **Por quanto tempo vale.** 10 minutos (`TTL_REQUEST_STATE = 600`, [servidor-mcp/servidor.py:47](servidor-mcp/servidor.py#L47)). O servidor não guarda nada entre o `input_required` e o retry: tudo viaja no token, e por isso um retry depois de reiniciar o processo funciona, desde que a mesma chave esteja no ambiente.
 
-**Capability.** Antes de emitir a elicitation, o servidor exige elicitation em form mode no `_meta` daquele request. Sem ela, responde -32021 com `data.requiredCapabilities = {"elicitation": {"form": {}}}` e HTTP 400 ([servidor-mcp/servidor.py:242](servidor-mcp/servidor.py#L242)). Pela spec, `elicitation: {}` sem modos equivale a form, e declarar só `url` não conta. O agente declara exatamente `{"elicitation": {"form": {}}}` em todo request.
+**Capability.** Antes de emitir a elicitation, o servidor exige elicitation em form mode no `_meta` daquele request. Sem ela, responde -32021 com `data.requiredCapabilities = {"elicitation": {"form": {}}}` e HTTP 400 ([servidor-mcp/servidor.py:252](servidor-mcp/servidor.py#L252)). Pela spec, `elicitation: {}` sem modos equivale a form, e declarar só `url` não conta. O agente declara exatamente `{"elicitation": {"form": {}}}` em todo request.
+
+**Capabilities anunciadas.** O servidor anuncia só o que o escopo pede: `{"tools": {...}, "resources": {...}}`. Prompts e subscriptions estão fora de escopo. Com `subscriptions=False`, o SDK não anuncia `listChanged` nem `resources.subscribe`. Os handlers de prompts, que o `MCPServer` registra sempre, são retirados logo depois da criação do servidor, porque o SDK não tem API pública para isso, e `prompts/*` passa a responder -32601.
 
 **Onde fica o estado das Tasks.** Em memória do agente, no dicionário `Ponte.tasks` ([agente/agente.py:114](agente/agente.py#L114)), indexado pelo id da Task. O `requestState` fica na `Pausa` do `Registro`, fora do objeto `task` que é serializado nas respostas: não aparece no card, no artifact nem em mensagem nenhuma, e também não é logado. Estado terminal (COMPLETED, CANCELED, FAILED) é definitivo, e um `SendMessage` para ele recebe o erro -32004 (`UnsupportedOperationError`). Uma Task inexistente recebe -32001. As reservas criadas também ficam em memória, no servidor MCP, e não sobrevivem a restart (fora de escopo).
 
@@ -143,7 +145,7 @@ No retry, o boundary verifica o token antes de a tool rodar. Token adulterado, e
 Última execução, a partir de um clone limpo seguindo este README, com os dois processos recém-iniciados:
 
 ```
-trace-id desta execucao: 7788adcdfd1e6e958000fd35e272497a
+trace-id desta execucao: 1c05c510880fc2b954ab41c9bd007262
 procure esse valor no stderr do servidor MCP para conferir a propagacao do traceparent.
 
 PASS 01 tools/list traz as tres tools

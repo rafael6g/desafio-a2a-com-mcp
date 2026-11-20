@@ -124,7 +124,17 @@ mcp = MCPServer(
     version="1.0.0",
     request_state_security=RequestStateSecurity(keys=[segredo_do_ambiente()], ttl=TTL_REQUEST_STATE),
     log_level="WARNING",
+    # Subscriptions estao fora de escopo: sem subscriptions/listen, o SDK
+    # tambem nao anuncia listChanged nem resources.subscribe.
+    subscriptions=False,
 )
+
+# Prompts estao fora de escopo. O MCPServer registra os handlers de prompts
+# sempre, e o SDK anuncia a capability de prompts a partir deles; como nao ha
+# API publica para desregistrar, eles sao retirados aqui. Resultado: o servidor
+# anuncia so `tools` e `resources`, e prompts/* responde -32601.
+for _metodo in ("prompts/list", "prompts/get"):
+    mcp._lowlevel_server._request_handlers.pop(_metodo, None)
 
 
 @mcp.tool(description="Lista todas as salas com capacidade e recursos.")
