@@ -16,7 +16,7 @@ cliente A2A ──SendMessage/GetTask──▶ agente (7300) ──tools/list, r
 
 ## Como rodar
 
-Pré-requisitos: Python 3.11 ou superior (o `mcp` 2.3.0 aceita 3.10, mas as versões travadas do `starlette` e do `httpx2` exigem 3.11) e, de preferência, o [uv](https://docs.astral.sh/uv/). O validador roda com qualquer Python 3.10+ e não tem dependência.
+Pré-requisitos: Python 3.10 ou superior e, de preferência, o [uv](https://docs.astral.sh/uv/). O validador também roda com Python 3.10+ e não tem dependência. A entrega foi validada em Python 3.10 e 3.13.
 
 ### 1. Clonar e instalar (versões travadas em `pyproject.toml` / `uv.lock`)
 

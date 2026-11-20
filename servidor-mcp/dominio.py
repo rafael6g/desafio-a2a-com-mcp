@@ -71,7 +71,9 @@ def versao_politica() -> str:
 
 def _instante(valor: str) -> datetime:
     try:
-        dt = datetime.fromisoformat(valor)
+        # O fromisoformat do Python 3.10 nao aceita o sufixo Z (so o 3.11+).
+        texto = valor[:-1] + "+00:00" if isinstance(valor, str) and valor.endswith(("Z", "z")) else valor
+        dt = datetime.fromisoformat(texto)
     except (TypeError, ValueError):
         raise RegraVioladaError(f"Data invalida: {valor} nao esta em ISO 8601") from None
     if dt.tzinfo is None:
