@@ -21,7 +21,7 @@ Pré-requisitos: Python 3.11 ou superior (o `mcp` 2.3.0 aceita 3.10, mas as vers
 ### 1. Clonar e instalar (versões travadas em `pyproject.toml` / `uv.lock`)
 
 ```bash
-git clone https://github.com/real94tech/desafio-a2a-com-mcp.git
+git clone https://github.com/rafael6g/desafio-a2a-com-mcp.git
 cd desafio-a2a-com-mcp
 uv sync --locked
 ```
