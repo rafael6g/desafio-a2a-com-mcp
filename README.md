@@ -142,10 +142,10 @@ No retry, o boundary verifica o token antes de a tool rodar. Token adulterado, e
 
 ## Saída do validador
 
-Última execução, a partir de um clone limpo seguindo este README, com os dois processos recém-iniciados:
+Última execução, a partir de um clone limpo do fork seguindo este README (processos e validador em Python 3.10.21), com os dois processos recém-iniciados:
 
 ```
-trace-id desta execucao: 1c05c510880fc2b954ab41c9bd007262
+trace-id desta execucao: afabf1d6b0cac8ac23b968d10128eaaf
 procure esse valor no stderr do servidor MCP para conferir a propagacao do traceparent.
 
 PASS 01 tools/list traz as tres tools
