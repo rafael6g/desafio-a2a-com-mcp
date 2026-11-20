@@ -1,0 +1,17 @@
+[project]
+name = "a-ponte"
+version = "1.0.0"
+description = "Agente A2A (Central de Salas) com um servidor MCP por dentro: desafio A Ponte."
+readme = "README.md"
+# mcp 2.3.0 aceita 3.10, mas starlette 1.10 e httpx2 2.16 exigem 3.11.
+requires-python = ">=3.11"
+# Versoes travadas. Sem SDK de LLM: o agente decide por regra.
+dependencies = [
+    "mcp==2.3.0",         # SDK oficial do MCP v2 (revisao 2026-07-28): servidor MCP
+    "uvicorn==0.54.0",    # servidor ASGI dos dois processos
+    "starlette==1.10.0",  # HTTP do agente A2A (card + JSON-RPC)
+    "httpx2==2.16.2",     # cliente HTTP do host MCP dentro do agente
+]
+
+[tool.uv]
+package = false
